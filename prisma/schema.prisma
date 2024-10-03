@@ -1,0 +1,55 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+}
+
+enum Status {
+  LIKE
+  PASS
+  INTERESTED
+  REJECTED
+}
+
+model User {
+  id        String              @id @default(auto()) @map("_id") @db.ObjectId
+  firstName String
+  lastName  String?
+  emailId   String              @unique
+  password  String
+  age       Int
+  gender    Gender
+  photoUrl  String?             @default("https://t4.ftcdn.net/jpg/05/89/93/27/240_F_589932782_vQAEAZhHnq1QCGu5ikwrYaQD0Mmurm0N.jpg")
+  about     String?
+  skills    String[]
+  createdAt DateTime            @default(now())
+  updatedAt DateTime            @updatedAt
+  fromUser  ConnectionRequest[] @relation("UserFromRequests")
+  toUser    ConnectionRequest[] @relation("UserToRequests")
+}
+
+model ConnectionRequest {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  fromUser   User     @relation("UserFromRequests", fields: [fromUserId], references: [id])
+  fromUserId String   @db.ObjectId
+  toUser     User     @relation("UserToRequests", fields: [toUserId], references: [id])
+  toUserId   String   @db.ObjectId
+  status     Status
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
