@@ -2,14 +2,19 @@
 import express, { Express } from "express"
 import authRouter from './routes/auth'
 import { Gender, PrismaClient } from "@prisma/client"
+import dotenv from 'dotenv'
+import cookieParser from 'cookie-parser'
 // import prisma from "./prisma"
 // import path from 'path';
 
 const app : Express = express()
 const prisma = new PrismaClient()
 const PORT = process.env.PORT || 3000 
+dotenv.config()
 
 app.use(express.json())
+app.use(cookieParser())
+
 app.use("/", authRouter)
 
 // Serve static files from the public directory
@@ -23,19 +28,19 @@ async function main() {
 
     app.get('/', async (req, res) => {
 
-      await prisma.user.create({ 
-      data: {
-        firstName: 'Rich',
-        lastName: 'Gandu',
-        emailId: ' hello@prisma1.com',
-        password: '123123123',
-        gender: Gender.FEMALE,
-        age: 18,
-      },
-    })
+    //   await prisma.user.create({ 
+    //   data: {
+    //     firstName: 'Rich',
+    //     lastName: 'Gandu',
+    //     emailId: ' hello@prisma1.com',
+    //     password: '123123123',
+    //     gender: Gender.FEMALE,
+    //     age: 18,
+    //   },
+    // })
     
-    const allUsers = await prisma.user.findMany({})
-    console.log(allUsers)
+    // const allUsers = await prisma.user.findMany({})
+    // console.log(allUsers)
 
 
       res.send("Server is alive");

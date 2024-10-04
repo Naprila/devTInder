@@ -30,3 +30,4 @@ GET /user/feed
 
 1) chat
 2) password reset
+3) add strong password validation (zod)
