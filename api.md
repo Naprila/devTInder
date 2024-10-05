@@ -7,7 +7,7 @@ POST /logout
 # profile router
 
 GET /profile/view
-POST /profile/edit
+PATCH /profile/edit
 PATCH /profile/password
 
 # connection router
@@ -29,5 +29,4 @@ GET /user/feed
 # features to consider adding later
 
 1) chat
-2) password reset
-3) add strong password validation (zod)
+2) add forgot password feature

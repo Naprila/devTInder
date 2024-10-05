@@ -5,11 +5,11 @@ import { User } from '@prisma/client';
 import { loginSchema, signupSchema, TokenInterface } from '../utils/validation';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import { getErrorMessage } from '../utils/utility';
 
 
 const router = express.Router()
 const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY;
-
 
 
 router.post('/login', async (req: Request, res: Response): Promise<void> => {
@@ -20,20 +20,7 @@ router.post('/login', async (req: Request, res: Response): Promise<void> => {
         if  (parsedData.success) {
             // console.log("parse succeed:", parsedData.data);
         } else {
-            const errorMessages: Record<string, string[]> = {};
-            // Organize errors by field
-            parsedData.error.issues.forEach(issue => {
-                const field = issue.path.join('.');
-                if (!errorMessages[field]) {
-                    errorMessages[field] = [];
-                }
-                errorMessages[field].push(issue.message);
-            });
-
-            const formattedErrors = Object.entries(errorMessages)
-                .map(([field, messages]) => `${field}: ${messages.join(', ')}`)
-                .join(' | ');
-
+            const formattedErrors = getErrorMessage(parsedData)
             throw new Error(`${formattedErrors}`);
         }
 
@@ -68,21 +55,8 @@ router.post('/login', async (req: Request, res: Response): Promise<void> => {
 router.post('/signup', async (req: Request, res: Response): Promise<void> => {
     try {
         const parsedData = signupSchema.safeParse(req.body)
-        if  (!parsedData.success) {
-            const errorMessages: Record<string, string[]> = {};
-            // Organize errors by field
-            parsedData.error.issues.forEach(issue => {
-                const field = issue.path.join('.');
-                if (!errorMessages[field]) {
-                    errorMessages[field] = [];
-                }
-                errorMessages[field].push(issue.message);
-            });
-
-            const formattedErrors = Object.entries(errorMessages)
-                .map(([field, messages]) => `${field}: ${messages.join(', ')}`)
-                .join(' | ');
-
+        if (!parsedData.success) {
+            const formattedErrors = getErrorMessage(parsedData)
             throw new Error(`${formattedErrors}`);
         }
         
@@ -98,7 +72,7 @@ router.post('/signup', async (req: Request, res: Response): Promise<void> => {
                 gender
             }
         })
-        res.status(200).send("User registered!")
+        res.status(200).send({msg: "User registered!"})
         return
     } catch (error: any) {
         console.error("Err:", error.message)
@@ -110,10 +84,10 @@ router.post('/signup', async (req: Request, res: Response): Promise<void> => {
 router.post("/logout", (req: Request, res: Response) => {
     try {
         res.clearCookie("token")
-        res.status(200).send("logged out")
+        res.status(200).send({msg: "logged out"})
     } catch (error: any) {
         console.log(error.message)
-        res.status(400).send(error.message)
+        res.status(400).send({err: error.message})
     }
 })
 
