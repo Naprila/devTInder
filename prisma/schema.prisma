@@ -22,7 +22,7 @@ enum Gender {
 enum Status {
   LIKE
   PASS
-  INTERESTED
+  ACCEPTED
   REJECTED
 }
 
@@ -52,4 +52,6 @@ model ConnectionRequest {
   status     Status
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
+
+  @@index([fromUserId, toUserId])
 }

@@ -1,4 +1,4 @@
-import { Gender } from "@prisma/client";
+import { Gender, Status } from "@prisma/client";
 import { z } from "zod";
 
 // Minimum 8 characters, at least one uppercase letter, one lowercase letter, one number and one special character
@@ -15,7 +15,7 @@ export const loginSchema = z.object({
 
 export const signupSchema = z.object({
     firstName: z.string().max(20).min(1),
-    lastName: z.string().max(20).min(1),
+    lastName: z.string().max(20).min(1).optional(),
     emailId: z.string().email({ message: "Invalid email" }).trim(),
     password: z.string().max(70).min(8,{ message: 'Must be atleast 8 character long' }).regex(passwordValidation, {
         message: 'Invalid password',
@@ -50,6 +50,28 @@ export const changePasswordSchema = z.object({
     message: "New password and confirmation must match",
     path: ["confirmPassword"]
 })
+
+
+export const sendConnectionSchema = z.object({
+    status: z.nativeEnum(Status).refine( (data) => {
+        return data === Status.LIKE || data === Status.PASS 
+    }, {
+        message: 'Status must be either LIKE or PASS.',
+    }),
+    userId: z.string()
+    .length(24, { message: 'userId must be exactly 24 characters long.' })
+    .regex(/^[0-9a-fA-F]{24}$/, { message: 'userId must be a valid ObjectId format.' }),
+})
+
+export const reviewConnectionSchema = z.object({
+    status: z.nativeEnum(Status).refine((value) => value === Status.ACCEPTED || value === Status.REJECTED, 
+    {
+        message: 'Status must be either ACCEPTED or REJECTED.',
+    }),
+    requestId: z.string().length(24, { message: 'userId must be exactly 24 characters long.' })
+                .regex(/^[0-9a-fA-F]{24}$/, { message: 'userId must be a valid ObjectId format.' }),
+})
+
 
 export interface TokenInterface {
        emailId: string;

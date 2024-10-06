@@ -7,7 +7,8 @@ import prisma from "../prisma";
 export interface SanitizedUser {
     firstName: string,
     lastName: string | null,
-    emailId: string
+    emailId: string,
+    id: string
 }
 
 export const authMiddleware = async (req: Request, res: Response, next: NextFunction) => {
@@ -29,7 +30,8 @@ export const authMiddleware = async (req: Request, res: Response, next: NextFunc
             select: {
                 firstName: true,
                 lastName: true,
-                emailId: true
+                emailId: true,
+                id: true,
             }
         })
 
@@ -37,6 +39,7 @@ export const authMiddleware = async (req: Request, res: Response, next: NextFunc
             throw new Error("Invalid token, try login again")
         }
         req.user = user 
+        console.log(user)
         next()
     } catch (error: any) {
         console.error('Error:', error.message)
