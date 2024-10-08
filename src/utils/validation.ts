@@ -72,6 +72,19 @@ export const reviewConnectionSchema = z.object({
                 .regex(/^[0-9a-fA-F]{24}$/, { message: 'userId must be a valid ObjectId format.' }),
 })
 
+// export const paginationSchema = z.object({
+//     page: z.string()
+//             .transform((val) => {
+//                 const num = parseInt(val, 10)
+//                 return isNaN(num) ||  num < 1 ? 1 : num
+//             }).optional().,
+//     limit: z.string()
+//             .transform((val) => {
+//                 const num = parseInt(val)
+//                 return isNaN(num) ? 10 : num
+                
+//             }) .optional()   
+// })
 
 export interface TokenInterface {
        emailId: string;

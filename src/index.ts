@@ -3,6 +3,7 @@ import express, { Express } from "express"
 import authRouter from './routes/auth'
 import profileRouter from './routes/profile'
 import requestRouter from './routes/request'
+import userRouter from './routes/user'
 import { PrismaClient } from "@prisma/client"
 import dotenv from 'dotenv'
 import cookieParser from 'cookie-parser'
@@ -20,6 +21,7 @@ app.use(cookieParser())
 app.use("/", authRouter)
 app.use("/profile", profileRouter)
 app.use('/request', requestRouter)
+app.use('/user', userRouter)
 
 // Serve static files from the public directory
 // app.use('/public', express.static(path.join(__dirname, 'src/public')));
