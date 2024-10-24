@@ -6,6 +6,7 @@ import { loginSchema, signupSchema, TokenInterface } from '../utils/validation';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { getErrorMessage } from '../utils/utility';
+import { unkey } from '../utils/rateLimit';
 
 
 const router = express.Router()
@@ -13,15 +14,21 @@ const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY;
 
 
 router.post('/login', async (req: Request, res: Response): Promise<void> => {
+    console.log("Login route called");
     try {
         const { emailId, password }:{ emailId: string, password: string } = req.body
 
         const parsedData = loginSchema.safeParse({ emailId, password });
         if  (parsedData.success) {
-            // console.log("parse succeed:", parsedData.data);
         } else {
             const formattedErrors = getErrorMessage(parsedData)
             throw new Error(`${formattedErrors}`);
+        }
+
+        const ratelimit = await unkey.limit(emailId);
+        if (!ratelimit.success){
+            res.status(429).json({msg: `You have ${ratelimit.remaining} attempts left, try again after sometime`});
+            return
         }
 
         const user: User | null = await prisma.user.findUserByEmail(emailId)
@@ -61,6 +68,12 @@ router.post('/signup', async (req: Request, res: Response): Promise<void> => {
         }
         
         const { firstName, lastName, emailId, password, gender} = req.body
+        const ratelimit = await unkey.limit(emailId);
+        if (!ratelimit.success){
+            res.status(429).json({msg: `You have ${ratelimit.remaining} attempts left, try again after sometime`});
+            return
+        }
+
         const hashedPassword: string = await bcrypt.hash(password, 10)
 
         await prisma.user.create({
